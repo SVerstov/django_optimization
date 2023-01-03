@@ -5,8 +5,25 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - .:/clients
+    environment:
+      - DB_HOST=database
+      - DB_NAME=db
+      - DB_USER=user
+      - DB_PASSWORD=hardpass
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=example@mail.com
+      - DJANGO_SUPERUSER_PASSWORD=qwerty123
 
-    command:
-      python manage.py runserver 0.0.0.0:8000
+#    command:
 
+
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15.1-alpine
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=hardpass
