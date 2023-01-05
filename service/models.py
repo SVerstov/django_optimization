@@ -9,6 +9,9 @@ class Service(models.Model):
     name = models.CharField(max_length=50)
     full_price = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.name
+
 
 class Plan(models.Model):
     PLAN_TYPES = (
@@ -23,8 +26,14 @@ class Plan(models.Model):
                                                        MaxValueValidator(100)
                                                    ])
 
+    def __str__(self):
+        return f'{self.plan_types} - {self.discount_percent}%'
+
 
 class Subscription(models.Model):
     client = models.ForeignKey(Client, related_name='subscription', on_delete=models.PROTECT)
     service = models.ForeignKey(Service, related_name='subscription', on_delete=models.PROTECT)
     plan = models.ForeignKey(Plan, related_name='subscription', on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f'{self.client.user.username} - {self.service.name} - {self.plan}'

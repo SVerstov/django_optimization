@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/clients
+      - .:/app
     environment:
       - DB_HOST=database
       - DB_NAME=db
@@ -15,7 +15,7 @@ services:
       - DJANGO_SUPERUSER_EMAIL=example@mail.com
       - DJANGO_SUPERUSER_PASSWORD=qwerty123
 
-#    command:
+    command: python manage.py runserver 0.0.0.0:8000
 
 
     depends_on:
