@@ -27,3 +27,37 @@ services:
       - POSTGRES_DB=db
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=hardpass
+
+  redis:
+    image: redis:7.0.7-alpine
+    hostname: redis
+
+
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - .:/app
+    links:
+      - redis
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: .
+    entrypoint: celery
+    command: -A celery_app.app flower
+    volumes:
+      - .:/app
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+
