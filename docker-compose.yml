@@ -11,12 +11,11 @@ services:
       - DB_NAME=db
       - DB_USER=user
       - DB_PASSWORD=hardpass
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_EMAIL=example@mail.com
-      - DJANGO_SUPERUSER_PASSWORD=qwerty123
+#      - DJANGO_SUPERUSER_USERNAME=admin
+#      - DJANGO_SUPERUSER_EMAIL=example@mail.com
+#      - DJANGO_SUPERUSER_PASSWORD=qwerty123
 
-    command: python manage.py runserver 0.0.0.0:8000
-
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
     depends_on:
       - database
@@ -39,6 +38,11 @@ services:
       context: .
     hostname: worker
     entrypoint: celery
+    environment:
+      - DB_HOST=database
+      - DB_NAME=db
+      - DB_USER=user
+      - DB_PASSWORD=hardpass
     command: -A celery_app.app worker --loglevel=info
     volumes:
       - .:/app
@@ -46,6 +50,7 @@ services:
       - redis
     depends_on:
       - redis
+      - database
 
   flower:
     build:

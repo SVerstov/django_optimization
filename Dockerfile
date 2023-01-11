@@ -11,7 +11,6 @@ WORKDIR /app
 EXPOSE 8000
 
 
-
 RUN adduser --disabled-password user
 
 USER user
