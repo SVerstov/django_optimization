@@ -62,14 +62,9 @@ class Subscription(models.Model):
     service = models.ForeignKey(Service, related_name='subscriptions', on_delete=models.PROTECT)
     plan = models.ForeignKey(Plan, related_name='subscriptions', on_delete=models.PROTECT)
     price = models.FloatField(default=0)
-    comment = models.CharField(max_length=50, default='')
+    comment = models.CharField(max_length=50, default='', blank=True, db_index=True)
 
     def __str__(self):
         return f'{self.client.user.username} - {self.service.name} - {self.plan}'
-
-    # def save(self, *args, **kwargs):
-    #     calculate_price.delay(self.id)
-    #     return super().save(*args, **kwargs)
-
 
 
