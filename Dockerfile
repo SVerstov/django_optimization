@@ -1,4 +1,4 @@
-FROM python:3.10-alpine3.17
+FROM python:3.10.9-alpine3.17
 
 
 RUN apk add postgresql-client build-base postgresql-dev

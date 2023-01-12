@@ -145,4 +145,14 @@ LOGGING = {
     }
 }
 
-CELERY_BROKER_URL = 'redis://redis:6379/0'
+DEBUG_REDIS_URL = os.environ.get('REDIS_URL')
+CELERY_BROKER_URL = DEBUG_REDIS_URL if DEBUG_REDIS_URL else 'redis://redis:6379/0'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': CELERY_BROKER_URL,
+    }
+}
+
+PRICE_CACHE_NAME = 'price_total_amount'

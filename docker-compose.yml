@@ -1,35 +1,35 @@
 services:
-  django:
-    build:
-      context: .
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/app
-    environment:
-      - DB_HOST=database
-      - DB_NAME=db
-      - DB_USER=user
-      - DB_PASSWORD=hardpass
-#      - DJANGO_SUPERUSER_USERNAME=admin
-#      - DJANGO_SUPERUSER_EMAIL=example@mail.com
-#      - DJANGO_SUPERUSER_PASSWORD=qwerty123
-
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-
-    depends_on:
-      - database
+#  django:
+#    build:
+#      context: .
+#    ports:
+#      - "8000:8000"
+#    volumes:
+#      - .:/app
+#    env_file:
+#      - .env
+#
+#    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+#
+#    depends_on:
+#      - database
 
   database:
     image: postgres:15.1-alpine
+    env_file:
+      - .env
     environment:
-      - POSTGRES_DB=db
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=hardpass
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
 
   redis:
     image: redis:7.0.7-alpine
     hostname: redis
+    ports:
+      - "6379:6379"
 
 
 
@@ -38,11 +38,8 @@ services:
       context: .
     hostname: worker
     entrypoint: celery
-    environment:
-      - DB_HOST=database
-      - DB_NAME=db
-      - DB_USER=user
-      - DB_PASSWORD=hardpass
+    env_file:
+      - .env
     command: -A celery_app.app worker --loglevel=info
     volumes:
       - .:/app
@@ -51,6 +48,23 @@ services:
     depends_on:
       - redis
       - database
+
+  worker2:
+    build:
+      context: .
+    hostname: worker2
+    entrypoint: celery
+    env_file:
+      - .env
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - .:/app
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database
+
 
   flower:
     build:

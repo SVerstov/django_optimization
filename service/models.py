@@ -1,8 +1,10 @@
+from django.conf import settings
+from django.core.cache import cache
 from django.core.validators import MaxValueValidator
 from django.db import models
 
 from clients.models import Client
-from service.tasks import calculate_price
+from service.tasks import calculate_price, add_comment
 
 
 # Create your models here.
@@ -50,7 +52,7 @@ class Plan(models.Model):
         if self.__discount_percent != self.discount_percent:
             for subscription in self.subscriptions.all():
                 calculate_price.delay(subscription.id)
-
+                add_comment.delay(subscription.id)
         self.__discount_percent = self.discount_percent
         return super().save(*args, **kwargs)
 
@@ -60,6 +62,14 @@ class Subscription(models.Model):
     service = models.ForeignKey(Service, related_name='subscriptions', on_delete=models.PROTECT)
     plan = models.ForeignKey(Plan, related_name='subscriptions', on_delete=models.PROTECT)
     price = models.FloatField(default=0)
+    comment = models.CharField(max_length=50, default='')
 
     def __str__(self):
         return f'{self.client.user.username} - {self.service.name} - {self.plan}'
+
+    # def save(self, *args, **kwargs):
+    #     calculate_price.delay(self.id)
+    #     return super().save(*args, **kwargs)
+
+
+
